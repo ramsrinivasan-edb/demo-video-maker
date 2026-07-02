@@ -76,6 +76,36 @@ overlay_expr() {  # $1 = corner  (margin 28px)
   esac
 }
 
+# --- QR end card ------------------------------------------------------------
+# OUTRO_URL defaults to this repo's own GitHub remote, so the QR "just works".
+# Set OUTRO_URL="" to disable the end card, or to any URL to override.
+if [[ -z "${OUTRO_URL+x}" ]]; then
+  OUTRO_URL="$(git remote get-url origin 2>/dev/null | sed -E 's#git@github.com:#https://github.com/#; s#\.git$##')"
+fi
+ENDCARD="$OUT/endcard.png"
+if [[ -n "${OUTRO_URL:-}" && ! -f "$ENDCARD" ]]; then
+  PY="$( [ -x .venv/bin/python ] && echo .venv/bin/python || echo "${PYTHON:-python3}" )"
+  if "$PY" -c "import qrcode, PIL" 2>/dev/null; then
+    echo "== building QR end card for $OUTRO_URL =="
+    "$PY" make_endcard.py --url "$OUTRO_URL" --out "$ENDCARD"
+  else
+    echo "(qrcode/PIL unavailable — skipping QR end card; run ./setup.sh or: pip install 'qrcode[pil]')"
+  fi
+fi
+
+# Append a few seconds of the end card to a finished video (in place).
+append_endcard() {  # $1 = video (mp4, has v+a)   $2 = endcard png
+  local vid="$1" card="$2" tmp="${1%.mp4}.outro.mp4"
+  ffmpeg -y -loglevel error -i "$vid" -loop 1 -t 4 -i "$card" -f lavfi -t 4 -i anullsrc=r=44100:cl=stereo \
+    -filter_complex \
+      "[0:v]scale=1440:810,setsar=1,fps=30,format=yuv420p[v0];\
+[0:a]aresample=44100,aformat=channel_layouts=stereo[a0];\
+[1:v]scale=1440:810,setsar=1,fps=30,format=yuv420p[v1];\
+[v0][a0][v1][2:a]concat=n=2:v=1:a=1[v][a]" \
+    -map "[v]" -map "[a]" -c:v libx264 -pix_fmt yuv420p -c:a aac -movflags +faststart "$tmp" \
+  && mv "$tmp" "$vid"
+}
+
 # --- 1. synthesize voice-over (model loads once for all demos) ---------------
 if [[ "$DO_TTS" -eq 1 ]]; then
   echo "== synthesizing voice-over from $REF =="
@@ -87,7 +117,7 @@ if [[ "$DO_TTS" -eq 1 ]]; then
     [[ -f "$n" ]] || { echo "!! missing $n"; exit 1; }
     jobs+=("$n")
   done
-  python tts_clone.py --reference "$REF" --out-dir "$OUT/audio" "${jobs[@]}"
+  python tts_clone.py --reference "$REF" --speed "${NARRATION_SPEED:-0.92}" --out-dir "$OUT/audio" "${jobs[@]}"
   deactivate || true
 fi
 
@@ -181,6 +211,10 @@ for d in "${DEMOS[@]}"; do
   fi
   echo "=== $d: muxing voice-over + badge ==="
   mux "$d" "$TARGET" "$BADGE_CORNER"
+  if [[ -f "$ENDCARD" ]]; then
+    echo "=== $d: appending QR end card ==="
+    append_endcard "$OUT/video/$d.mp4" "$ENDCARD"
+  fi
   echo "=== $d: done -> $OUT/video/$d.mp4 ==="
 done
 

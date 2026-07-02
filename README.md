@@ -76,6 +76,10 @@ build/video/example-demo.mp4
 
 Open it — that's your voice, your face, and paced action, end to end.
 
+> A sample of the finished output is checked in at
+> [`docs/example-output.mp4`](docs/example-output.mp4) (voice + photo + a QR end
+> card pointing back to this repo).
+
 ---
 
 ## Make it your own demo
@@ -147,6 +151,21 @@ and render.sh plays your voice over the live action instead.
 **Slow setup?** If your demo needs minutes of setup that shouldn't be on camera
 (building containers, seeding data), put it in `prep.sh`. render.sh runs it
 off-camera before recording, so only the payoff is captured.
+
+---
+
+## The QR end card
+
+Each video ends with a card showing a **QR code + URL** so viewers can go make
+their own. By default the URL is your repo's own GitHub remote, so it just works:
+
+- Override or disable it: `OUTRO_URL="https://example.com" ./render.sh` (or
+  `OUTRO_URL="" ./render.sh` to turn it off).
+- Slightly slower narration reads better: `NARRATION_SPEED` is `0.92` by default;
+  set e.g. `NARRATION_SPEED=1.0` for full speed.
+
+The end card is appended as a cheap post-step, so changing the URL doesn't require
+re-recording anything.
 
 ---
 

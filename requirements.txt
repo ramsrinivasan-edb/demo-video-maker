@@ -2,3 +2,6 @@
 # torchaudio is used to write the wav files.
 chatterbox-tts
 torchaudio
+
+# QR-code end card (make_endcard.py). Pillow comes with the [pil] extra.
+qrcode[pil]

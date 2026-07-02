@@ -1,0 +1,15 @@
+Hello, and welcome. In the next few minutes, I will show you how to make a narrated demo video, exactly like the one you are watching now. The voice is mine, cloned from a short sample. The photo is mine. And it all runs offline, on my own laptop.
+
+Here is the whole idea. You bring three things: your voice, your photo, and your demo commands. The tool does the rest. It clones your voice, records your terminal, paces the action, adds your photo, and gives you one finished video.
+
+Step one. Get the tool. Clone the repository from GitHub, and run the setup script once. It installs the few programs it needs, and downloads the voice model to your machine. You only do this one time.
+
+Step two. Add your voice. Record about sixty to ninety seconds of yourself, speaking naturally, and save the clip in the voice sample folder. From this one short recording, the tool learns how you sound.
+
+Step three. Add your photo. Drop a clear headshot into the assets folder. The tool crops it into a circle, and places it in the corner of every video, so people can see who is presenting.
+
+Step four. Build your demo. Copy the example folder, and make it your own. Open the demo script. You will see the commands you want to show, and between them, a pace marker on each step. The number is roughly how many words you will speak while that step is on the screen. This keeps the action in sync with your voice. Then write your narration, as plain simple sentences, in the text file next to it.
+
+Step five. Render the video. Run the render script, and it does everything for you. It clones your voice, records the terminal as your demo runs, and stretches or shrinks each step, so the action matches your words. Then it adds your photo, and joins it all into one video, saved in the build folder.
+
+And that is it. In fact, the video you are watching right now was made in exactly this way. So now it is your turn. Take any demo, and share it in your own voice, with your own face. You will find the link, and a QR code, on the screen. Thank you for watching, and happy creating.

@@ -1,0 +1,188 @@
+# demo-video-maker
+
+Turn a terminal demo into a **narrated video — in your own voice, with your face
+badged in a corner**, paced so the on-screen action tracks what you're saying.
+
+Everything runs **locally**. Your voice sample, your photo, and the finished
+videos never leave your machine — nothing is uploaded to any service.
+
+> New here and want the "why"? Read [`docs/why-this-exists.md`](docs/why-this-exists.md).
+
+```
+your voice sample  ─┐
+your headshot       ├──►  ./render.sh my-demo  ──►  build/video/my-demo.mp4
+demos/my-demo/      ┘        (voice + face + paced action)
+```
+
+---
+
+## What it does
+
+For each demo, one command produces an MP4 that:
+
+- **Narrates in your own cloned voice**, synthesized from a ~1 minute sample.
+- **Overlays your headshot** as a clean circular "presenter" badge.
+- **Paces the demo to the narration** — each step stays on screen while you talk
+  about it, instead of racing ahead and freezing at the end.
+- **Is fully repeatable** — change the demo or the script, re-run, done.
+
+---
+
+## Requirements
+
+- **[VHS](https://github.com/charmbracelet/vhs)** — records the terminal
+- **ffmpeg** — muxes voice + badge
+- **Python 3.9+** — runs the local voice model
+
+macOS:
+
+```bash
+brew install vhs ffmpeg python
+```
+
+(Linux: install ffmpeg + python3 from your package manager; get VHS from its
+[releases](https://github.com/charmbracelet/vhs#installation).)
+
+---
+
+## One-time setup
+
+```bash
+./setup.sh
+```
+
+This checks your tools, creates a `.venv`, and installs the voice model. Then:
+
+1. Drop a **60–90s voice sample** in [`voice-sample/`](voice-sample/README.md)
+   (wav/mp3/m4a).
+2. Put **your headshot** at `assets/presenter.jpg`
+   (see [`assets/`](assets/README.md)).
+
+---
+
+## Make your first video
+
+The repo ships with a small, dependency-free example:
+
+```bash
+./render.sh example-demo
+```
+
+The first run also downloads the voice-model weights (one time). When it finishes:
+
+```
+build/video/example-demo.mp4
+```
+
+Open it — that's your voice, your face, and paced action, end to end.
+
+---
+
+## Make it your own demo
+
+A demo is just a folder under `demos/`:
+
+```
+demos/
+  my-demo/
+    demo.sh        # required — the demo (prints to the terminal)
+    narration.txt  # required — the script, in your words
+    demo.conf      # optional — badge corner, pace weight override
+    prep.sh        # optional — slow/off-topic setup, run off-camera
+```
+
+**1. Copy the example and edit the demo:**
+
+```bash
+cp -r demos/example-demo demos/my-demo
+```
+
+Replace the `echo`s in `demos/my-demo/demo.sh` with your real demo — a CLI, a
+`psql` session, an API walkthrough, anything that prints to a terminal.
+
+**2. Add pacing.** Keep these two lines near the top of `demo.sh`:
+
+```bash
+source "${PACE_LIB:-/dev/null}" 2>/dev/null || true
+type pace >/dev/null 2>&1 || pace() { :; }
+```
+
+Then drop `pace <weight>` calls **between sections**. The weight is roughly the
+number of narration words spent on the section that just appeared:
+
+```bash
+run_step_one
+pace 40      # ~40 words of narration cover step one
+
+run_step_two
+pace 25      # ~25 words cover step two
+```
+
+`pace` does nothing when you run the demo yourself — it only kicks in while
+recording. So your normal `bash demo.sh` is unaffected.
+
+**3. Write the narration** in `narration.txt` — plain text, in your voice. Rough
+guide: ~150 words per minute of video.
+
+**4. Render:**
+
+```bash
+./render.sh my-demo          # just this one
+./render.sh                  # everything under demos/
+```
+
+---
+
+## How the pacing works
+
+Terminal demos finish in seconds; narration takes a minute. render.sh measures
+both, then sizes the `pace` holds so the demo **stretches to match the voice-over
+and ends with it** — no dead freeze at the end. Because each hold is weighted by
+its narration length, the on-screen action tracks the story.
+
+**Real-time demos** (something that already runs *longer* than its narration —
+e.g. a live rebuild) shouldn't be stretched. Set `PACE_WEIGHT=0` in `demo.conf`
+and render.sh plays your voice over the live action instead.
+
+**Slow setup?** If your demo needs minutes of setup that shouldn't be on camera
+(building containers, seeding data), put it in `prep.sh`. render.sh runs it
+off-camera before recording, so only the payoff is captured.
+
+---
+
+## Configuration (`demo.conf`, all optional)
+
+| Key | Values | Default | Meaning |
+|-----|--------|---------|---------|
+| `BADGE_CORNER` | `top-right`, `top-left`, `bottom-right`, `bottom-left` | `top-right` | Where the photo badge sits |
+| `PACE_WEIGHT` | integer | auto-summed from `pace N` lines | Override the total; `0` disables stretching |
+
+---
+
+## Layout
+
+```
+render.sh            orchestrator: synth voice -> record -> mux
+tts_clone.py         local voice cloning (Chatterbox)
+setup.sh             one-time environment setup
+lib/pace.sh          the `pace` helper your demos source
+assets/              your headshot (presenter.jpg) + generated badge
+voice-sample/        your voice clip
+demos/<name>/        one folder per demo
+build/               all output (git-ignored): audio/, silent/, video/
+docs/                the write-up
+```
+
+---
+
+## Tips
+
+- **Approve the voice on one short clip first**, then batch the rest.
+- **Eyeball a few frames** of the finished video, not just the terminal output —
+  recording quirks hide there.
+- Everything is text and lives next to the demo, so anyone can tweak a sentence
+  and regenerate. No "where's the source for that video?" six months later.
+
+---
+
+*Built to be shared. If you improve it, send the change back so everyone gets it.*

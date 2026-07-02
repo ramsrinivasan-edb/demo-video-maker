@@ -1,0 +1,9 @@
+Welcome to a sixty second tour of the Acme Widget command line. Everything you hear is narrated in a voice cloned from a short sample, generated right here on this laptop, and paced to match the action on the screen.
+
+First, we scaffold a new project. Widget init creates the folder, drops in sensible defaults, and writes a starter config, so you are ready to work in just a few seconds.
+
+Next, we build. Forty two modules compile in a little over a second, and the finished artifacts land in the dist directory, ready to ship.
+
+Then we deploy straight to production. A single command uploads the build and hands back a live URL, with no dashboards and no manual steps.
+
+And that is the entire loop: initialize, build, and deploy. Copy this demo, drop in your own voice and your own photo, and make it your own.

@@ -1,0 +1,4 @@
+# Local, offline voice cloning. chatterbox-tts pulls in a compatible torch;
+# torchaudio is used to write the wav files.
+chatterbox-tts
+torchaudio

@@ -1,0 +1,13 @@
+# build artifacts & environment
+.venv/
+build/
+__pycache__/
+*.pyc
+.DS_Store
+
+# personal assets — everyone brings their own (kept out of the shared repo)
+assets/badge.png
+assets/presenter.*
+voice-sample/*
+!voice-sample/.gitkeep
+!voice-sample/README.md

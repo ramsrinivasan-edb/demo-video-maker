@@ -14,6 +14,7 @@ import argparse
 import os
 import re
 import subprocess
+import soundfile as sf
 
 # Let unsupported Apple-Silicon (MPS) ops fall back to CPU instead of crashing.
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
@@ -93,7 +94,8 @@ def main():
         if abs(args.speed - 1.0) > 1e-3:
             # Slow (or speed) the delivery without changing pitch, via ffmpeg atempo.
             tmp = out + ".tmp.wav"
-            torchaudio.save(tmp, full, sr)
+            # torchaudio.save(tmp, full, sr)
+            sf.write(tmp, full.cpu().numpy().squeeze(), sr)
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", tmp,
                             "-filter:a", f"atempo={args.speed}", out], check=True)
             os.remove(tmp)

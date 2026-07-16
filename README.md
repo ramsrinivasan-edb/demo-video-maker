@@ -22,8 +22,10 @@ For each demo, one command produces an MP4 that:
 
 - **Narrates in your own cloned voice**, synthesized from a ~1 minute sample.
 - **Overlays your headshot** as a clean circular "presenter" badge.
-- **Paces the demo to the narration** — each step stays on screen while you talk
-  about it, instead of racing ahead and freezing at the end.
+
+
+
+- **Paces the demo to the narration** — each step stays on screen while you talk about it, instead of racing ahead and freezing at the end.
 - **Is fully repeatable** — change the demo or the script, re-run, done.
 
 ---
@@ -32,7 +34,9 @@ For each demo, one command produces an MP4 that:
 
 - **[VHS](https://github.com/charmbracelet/vhs)** — records the terminal
 - **ffmpeg** — muxes voice + badge
-- **Python 3.9+** — runs the local voice model
+- **Python 3.12+** — runs the local voice model (tested up to Python 3.14 on Apple Silicon)
+
+> **Note for modern environments:** If you are running Python 3.12 to 3.14+ on Apple Silicon, your environment dependencies are fully managed and automatically patched out-of-the-box by our `requirements.txt`.
 
 macOS:
 

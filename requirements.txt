@@ -3,5 +3,10 @@
 chatterbox-tts
 torchaudio
 
+# Explicit requirements to fix Python 3.14 compatibility on macOS (Apple Silicon)
+soundfile
+setuptools
+resemble-perth @ git+https://github.com/resemble-ai/Perth.git@master
+
 # QR-code end card (make_endcard.py). Pillow comes with the [pil] extra.
 qrcode[pil]

@@ -22,9 +22,6 @@ For each demo, one command produces an MP4 that:
 
 - **Narrates in your own cloned voice**, synthesized from a ~1 minute sample.
 - **Overlays your headshot** as a clean circular "presenter" badge.
-
-
-
 - **Paces the demo to the narration** — each step stays on screen while you talk about it, instead of racing ahead and freezing at the end.
 - **Is fully repeatable** — change the demo or the script, re-run, done.
 
@@ -41,7 +38,7 @@ For each demo, one command produces an MP4 that:
 macOS:
 
 ```bash
-brew install vhs ffmpeg python
+brew install vhs ffmpeg python3
 ```
 
 (Linux: install ffmpeg + python3 from your package manager; get VHS from its
@@ -55,7 +52,12 @@ brew install vhs ffmpeg python
 ./setup.sh
 ```
 
-This checks your tools, creates a `.venv`, and installs the voice model. Then:
+This checks your tools, creates an isolated virtual environment (`.venv`), and installs the voice model. 
+
+> **Important:** Whenever you need to manually run or test the Python files directly (like `tts_clone.py`), make sure to activate the environment first:
+> ```bash
+> source .venv/bin/activate
+> ```
 
 1. Drop a **60–90s voice sample** in [`voice-sample/`](voice-sample/README.md)
    (wav/mp3/m4a).
@@ -129,8 +131,9 @@ pace 25      # ~25 words cover step two
 `pace` does nothing when you run the demo yourself — it only kicks in while
 recording. So your normal `bash demo.sh` is unaffected.
 
-**3. Write the narration** in `narration.txt` — plain text, in your voice. Rough
-guide: ~150 words per minute of video.
+**3. Write the narration** in `narration.txt` — plain text, written in your natural speech patterns. Rough guide: ~150 words per minute of video.
+
+> **Note on text formatting:** Keep the narration script entirely clean. Avoid markdown syntax, emojis, or bracketed sound cues (like `[laughs]`), as the local text-to-speech engine will attempt to vocalize them literally.
 
 **4. Render:**
 
@@ -194,6 +197,21 @@ voice-sample/        your voice clip
 demos/<name>/        one folder per demo
 build/               all output (git-ignored): audio/, silent/, video/
 docs/                the write-up
+```
+
+---
+
+## Troubleshooting
+
+### "python not found" or broken virtual environment
+If you source your `.venv` and running scripts throws errors or claims `python` cannot be found, your system's underlying global Python package manager likely updated (breaking internal environment symlinks). 
+
+You can completely reset the environment back to a healthy state without losing any of your saved assets or configuration:
+
+```bash
+deactivate
+rm -rf .venv
+./setup.sh
 ```
 
 ---

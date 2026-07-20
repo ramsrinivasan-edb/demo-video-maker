@@ -1,12 +1,17 @@
-# Local, offline voice cloning. chatterbox-tts pulls in a compatible torch;
-# torchaudio is used to write the wav files.
+# --- Local, Offline Voice Cloning Engine ---
 chatterbox-tts
 torchaudio
-
-# Explicit requirements to fix Python 3.14 compatibility on macOS (Apple Silicon)
-soundfile
-setuptools
 resemble-perth @ git+https://github.com/resemble-ai/Perth.git@master
 
-# QR-code end card (make_endcard.py). Pillow comes with the [pil] extra.
+# --- macOS (Apple Silicon) Compatibility Fixes ---
+soundfile
+setuptools
+
+# --- Core Studio Application Framework & UI ---
+gradio
+Pillow
 qrcode[pil]
+
+# --- V2 Sovereign AI & Voice-to-Text Upgrade ---
+faster-whisper
+torch

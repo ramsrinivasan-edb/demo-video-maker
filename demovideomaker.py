@@ -235,11 +235,11 @@ with gr.Blocks(title="Demo Video Maker Studio", theme=edb_theme) as demo:
                 gr.Markdown("### Local Workspace Paths")
                 script_path = gr.Textbox(
                     label="Absolute Path to your demo.sh",
-                    value="/Users/ram.srinivasan/testmydemorepo/demo-test-clean/demos/make-a-demo/demo.sh"
+                    value="/demos/make-a-demo/demo.sh"
                 )
                 narration_path = gr.Textbox(
                     label="Absolute Path to your narration.txt",
-                    value="/Users/ram.srinivasan/testmydemorepo/demo-test-clean/demos/make-a-demo/narration.txt"
+                    value="/demos/make-a-demo/narration.txt"
                 )
             
             with gr.Group(visible=False) as text_inputs:

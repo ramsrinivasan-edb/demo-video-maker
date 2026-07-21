@@ -16,6 +16,15 @@ demos/my-demo/      ┘        (voice + face + paced action)
 
 ---
 
+## 🚀 Quick Start for Non-Technical Users (macOS)
+
+If you downloaded this project as a ZIP or cloned it to your Mac:
+
+1. **First-time setup:** Double-click **`Install.command`** in Finder. Wait until the terminal window displays `SUCCESS!`.
+2. **Run the App:** Double-click **`Start VideoMaker.command`** to launch the interface!
+
+---
+
 ## What it does
 
 For each demo, one command produces an MP4 that:
@@ -46,7 +55,7 @@ brew install vhs ffmpeg python3
 
 ---
 
-## One-time setup
+## One-time setup (Command-Line)
 
 ```bash
 ./setup.sh
@@ -54,7 +63,7 @@ brew install vhs ffmpeg python3
 
 This checks your tools, creates an isolated virtual environment (`.venv`), and installs the voice model. 
 
-> **Important:** Whenever you need to manually run or test the Python files directly (like `tts_clone.py`), make sure to activate the environment first:
+> **Important:** Whenever you need to manually run or test the Python files directly, make sure to activate the environment first:
 > ```bash
 > source .venv/bin/activate
 > ```
@@ -66,8 +75,14 @@ This checks your tools, creates an isolated virtual environment (`.venv`), and i
 
 ---
 
-## Make your first video
+## Launch the UI or Make your first video
 
+### Running the App Interface:
+```bash
+python3 demovideomaker.py
+```
+
+### Running via Terminal Script:
 The repo ships with a small, dependency-free example:
 
 ```bash
@@ -188,6 +203,9 @@ re-recording anything.
 ## Layout
 
 ```
+Install.command      one-click installer shortcut for macOS
+Start VideoMaker.command double-click app launcher shortcut
+demovideomaker.py    desktop UI application
 render.sh            orchestrator: synth voice -> record -> mux
 tts_clone.py         local voice cloning (Chatterbox)
 setup.sh             one-time environment setup
@@ -213,6 +231,7 @@ deactivate
 rm -rf .venv
 ./setup.sh
 ```
+*(Or simply double-click `Install.command` again).*
 
 ---
 

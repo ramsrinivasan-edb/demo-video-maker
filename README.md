@@ -16,11 +16,13 @@ demos/my-demo/      ┘        (voice + face + paced action)
 
 ---
 
-## 🚀 Quick Start for Non-Technical Users (macOS)
+## 🚀 Quick Start (macOS)
 > ⚠️ **First Time Opening on macOS?**
-> Because these scripts are downloaded from GitHub, macOS Gatekeeper may block them on first launch.
+> macOS may block downloaded scripts on the first attempt.
+>
+> **Option A (System Settings):** If blocked, go to **System Settings > Privacy & Security**, scroll down to the **Security** section, and click **"Open Anyway"**.
 > 
-> **To bypass this:** **Right-Click** (or `Control` + Click) `Install.command`, select **Open**, and click **Open** in the popup window. You only need to do this once!
+> **Option B (Terminal Fix):** Open Terminal in the project folder and run: `xattr -cr .`
 
 If you downloaded this project as a ZIP or cloned it to your Mac:
 

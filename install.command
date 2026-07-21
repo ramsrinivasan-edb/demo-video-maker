@@ -42,4 +42,4 @@ else
     echo "=================================================="
 fi
 
-read -p "Press [Enter] to exit..."
+read -p "Press [Enter] to exit..." 

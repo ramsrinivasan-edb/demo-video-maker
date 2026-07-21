@@ -11,3 +11,10 @@ assets/presenter.*
 voice-sample/*
 !voice-sample/.gitkeep
 !voice-sample/README.md
+.venv/
+venv/
+build/
+*.mp4
+.DS_Store
+__pycache__/
+*.pyc

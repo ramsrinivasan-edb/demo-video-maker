@@ -58,31 +58,31 @@ def render_video_stream(
     voice_input,
     image_input
 ):
-    demo_dir = f"demos/{demo_name}"
-    os.makedirs(demo_dir, exist_ok=True)
-    
-    yield None, "⚙️ Staging assets and linking your custom paths...", get_status_html(1, 100)
-    
-    log_accumulator = "⚙️ Staging assets...\n"
-    
-    if voice_input is not None:
-        shutil.rmtree("voice-sample", ignore_errors=True)
-        target_voice = "voice-sample/test_demo_voice.m4a"
-        os.makedirs(os.path.dirname(target_voice), exist_ok=True)
-        shutil.copy(voice_input, target_voice)
-        log_accumulator += f"🎙️ Loaded presenter voice (saved to {target_voice}).\n"
-        
     if image_input is not None:
         try:
             img = Image.open(image_input)
-            target_img_local = "assets/presenter.png"
+            # Ensure image is in RGB mode before saving as JPEG
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
             
-            if os.path.exists("assets/presenter.jpg"):
-                os.remove("assets/presenter.jpg")
-                
-            os.makedirs(os.path.dirname(target_img_local), exist_ok=True)
-            img.save(target_img_local, "PNG")
-            log_accumulator += f"👤 Presenter headshot updated in {target_img_local}.\n"
+            # Save as presenter.jpg (what render.sh expects)
+            target_img_jpg = "assets/presenter.jpg"
+            os.makedirs(os.path.dirname(target_img_jpg), exist_ok=True)
+            img.save(target_img_jpg, "JPEG")
+            
+            # Also save as presenter.png just in case
+            img.save("assets/presenter.png", "PNG")
+            
+            log_accumulator += f"👤 Presenter headshot updated in {target_img_jpg}.\n"
+            
+            if use_custom_paths:
+                base_project_dir = os.path.abspath(os.path.join(custom_script_path.strip(), "../.."))
+                target_img_custom = os.path.join(base_project_dir, "assets/presenter.jpg")
+                if os.path.exists(os.path.dirname(target_img_custom)):
+                    img.save(target_img_custom, "JPEG")
+                    log_accumulator += f"👤 Synchronized headshot directly to custom workspace: {target_img_custom}.\n"
+        except Exception as e:
+            log_accumulator += f"⚠️ Image processing warning: {str(e)}\n"
             
             if use_custom_paths:
                 base_project_dir = os.path.abspath(os.path.join(custom_script_path.strip(), "../.."))

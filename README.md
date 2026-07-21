@@ -16,7 +16,8 @@ demos/my-demo/      ┘        (voice + face + paced action)
 
 ---
 
-## 🚀 Quick Start (macOS)
+
+## Quick Start (macOS)
 > ⚠️ **First Time Opening on macOS?**
 > macOS may block downloaded scripts on the first attempt.
 >
@@ -28,6 +29,10 @@ If you downloaded this project as a ZIP or cloned it to your Mac:
 
 1. **First-time setup:** Double-click **`Install.command`** in Finder. Wait until the terminal window displays `SUCCESS!`.
 2. **Run the App:** Double-click **`Start VideoMaker.command`** to launch the interface!
+
+### Quick Start Windows:
+1. Double-click **`Install.bat`** in File Explorer (Wait for `SUCCESS!`).
+2. Double-click **`Start VideoMaker.bat`** to launch!
 
 ---
 

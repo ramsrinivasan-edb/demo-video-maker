@@ -18,3 +18,8 @@ build/
 .DS_Store
 __pycache__/
 *.pyc
+
+# Windows additions
+Thumbs.db
+ehthumbs.db
+Desktop.ini

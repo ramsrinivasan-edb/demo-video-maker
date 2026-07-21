@@ -180,6 +180,11 @@ type pace >/dev/null 2>&1 || pace() { :; }
         log_accumulator += f"\n❌ Rendering failed with exit code {return_code}."
         yield None, log_accumulator, get_status_html(current_step, progress_percent)
 
+# Dynamic path resolution based on demovideomaker.py directory location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_SCRIPT_PATH = os.path.join(BASE_DIR, "demos", "make-a-demo", "demo.sh")
+DEFAULT_NARRATION_PATH = os.path.join(BASE_DIR, "demos", "make-a-demo", "narration.txt")
+
 # EDB Color Styled Panel Theme
 edb_theme = gr.themes.Default(
     primary_hue="blue",
@@ -235,11 +240,11 @@ with gr.Blocks(title="Demo Video Maker Studio", theme=edb_theme) as demo:
                 gr.Markdown("### Local Workspace Paths")
                 script_path = gr.Textbox(
                     label="Absolute Path to your demo.sh",
-                    value="/Users/ram.srinivasan/testmydemorepo/demo-test-clean/demos/make-a-demo/demo.sh"
+                    value=DEFAULT_SCRIPT_PATH
                 )
                 narration_path = gr.Textbox(
                     label="Absolute Path to your narration.txt",
-                    value="/Users/ram.srinivasan/testmydemorepo/demo-test-clean/demos/make-a-demo/narration.txt"
+                    value=DEFAULT_NARRATION_PATH
                 )
             
             with gr.Group(visible=False) as text_inputs:

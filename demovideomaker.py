@@ -281,4 +281,3 @@ if __name__ == "__main__":
     # Automate browser launch using standard python hooks right before starting server
     webbrowser.open_new_tab("http://127.0.0.1:7860")
     demo.launch(server_name="127.0.0.1", server_port=7860)
-    

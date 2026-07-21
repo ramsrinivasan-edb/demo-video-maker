@@ -58,127 +58,130 @@ def render_video_stream(
     voice_input,
     image_input
 ):
-    if image_input is not None:
-        try:
-            img = Image.open(image_input)
-            # Ensure image is in RGB mode before saving as JPEG
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
+    try:
+        demo_dir = f"demos/{demo_name}"
+        os.makedirs(demo_dir, exist_ok=True)
+        
+        yield None, "⚙️ Staging assets and linking your custom paths...", get_status_html(1, 100)
+        
+        log_accumulator = "⚙️ Staging assets...\n"
+        
+        if voice_input is not None:
+            shutil.rmtree("voice-sample", ignore_errors=True)
+            target_voice = "voice-sample/test_demo_voice.m4a"
+            os.makedirs(os.path.dirname(target_voice), exist_ok=True)
+            shutil.copy(voice_input, target_voice)
+            log_accumulator += f"🎙️ Loaded presenter voice (saved to {target_voice}).\n"
             
-            # Save as presenter.jpg (what render.sh expects)
-            target_img_jpg = "assets/presenter.jpg"
-            os.makedirs(os.path.dirname(target_img_jpg), exist_ok=True)
-            img.save(target_img_jpg, "JPEG")
-            
-            # Also save as presenter.png just in case
-            img.save("assets/presenter.png", "PNG")
-            
-            log_accumulator += f"👤 Presenter headshot updated in {target_img_jpg}.\n"
-            
-            if use_custom_paths:
-                base_project_dir = os.path.abspath(os.path.join(custom_script_path.strip(), "../.."))
-                target_img_custom = os.path.join(base_project_dir, "assets/presenter.jpg")
-                if os.path.exists(os.path.dirname(target_img_custom)):
-                    img.save(target_img_custom, "JPEG")
-                    log_accumulator += f"👤 Synchronized headshot directly to custom workspace: {target_img_custom}.\n"
-        except Exception as e:
-            log_accumulator += f"⚠️ Image processing warning: {str(e)}\n"
-            
-            if use_custom_paths:
-                base_project_dir = os.path.abspath(os.path.join(custom_script_path.strip(), "../.."))
-                target_img_custom = os.path.join(base_project_dir, "assets/presenter.png")
-                
-                old_custom_jpg = os.path.join(base_project_dir, "assets/presenter.jpg")
-                if os.path.exists(old_custom_jpg):
-                    os.remove(old_custom_jpg)
+        if image_input is not None:
+            try:
+                img = Image.open(image_input)
+                if img.mode in ("RGBA", "P"):
+                    img = img.convert("RGB")
                     
-                if os.path.exists(os.path.dirname(target_img_custom)):
-                    img.save(target_img_custom, "PNG")
-                    log_accumulator += f"👤 Synchronized headshot directly to custom workspace: {target_img_custom}.\n"
-        except Exception as e:
-            log_accumulator += f"⚠️ Image processing warning: {str(e)}\n"
+                target_img_local = "assets/presenter.jpg"
+                os.makedirs(os.path.dirname(target_img_local), exist_ok=True)
+                img.save(target_img_local, "JPEG")
+                img.save("assets/presenter.png", "PNG")
+                log_accumulator += f"👤 Presenter headshot updated in {target_img_local}.\n"
+                
+                if use_custom_paths:
+                    base_project_dir = os.path.abspath(os.path.join(custom_script_path.strip(), "../.."))
+                    target_img_custom = os.path.join(base_project_dir, "assets/presenter.jpg")
+                    if os.path.exists(os.path.dirname(target_img_custom)):
+                        img.save(target_img_custom, "JPEG")
+                        log_accumulator += f"👤 Synchronized headshot directly to custom workspace: {target_img_custom}.\n"
+            except Exception as e:
+                log_accumulator += f"⚠️ Image processing warning: {str(e)}\n"
 
-    if use_custom_paths:
-        script_source = custom_script_path.strip()
-        narration_source = custom_narration_path.strip()
-        
-        if not os.path.exists(script_source):
-            yield None, f"❌ Error: Script path does not exist: {script_source}", get_status_html(1, 0)
-            return
-        if not os.path.exists(narration_source):
-            yield None, f"❌ Error: Narration path does not exist: {narration_source}", get_status_html(1, 0)
-            return
+        if use_custom_paths:
+            script_source = custom_script_path.strip()
+            narration_source = custom_narration_path.strip()
+            
+            if not os.path.exists(script_source):
+                yield None, f"❌ Error: Script path does not exist: {script_source}", get_status_html(1, 0)
+                return
+            if not os.path.exists(narration_source):
+                yield None, f"❌ Error: Narration path does not exist: {narration_source}", get_status_html(1, 0)
+                return
 
-        for f in ["demo.sh", "narration.txt"]:
-            target = f"demos/{demo_name}/{f}"
-            if os.path.islink(target) or os.path.exists(target):
-                os.unlink(target) if os.path.islink(target) else os.remove(target)
+            for f in ["demo.sh", "narration.txt"]:
+                target = f"demos/{demo_name}/{f}"
+                if os.path.islink(target) or os.path.exists(target):
+                    try:
+                        os.unlink(target) if os.path.islink(target) else os.remove(target)
+                    except Exception:
+                        pass
 
-        os.symlink(script_source, f"demos/{demo_name}/demo.sh")
-        os.symlink(narration_source, f"demos/{demo_name}/narration.txt")
-    else:
-        with open(f"{demo_dir}/narration.txt", "w") as f:
-            f.write(narration_text)
-        
-        pace_header = """#!/bin/bash
+            os.symlink(script_source, f"demos/{demo_name}/demo.sh")
+            os.symlink(narration_source, f"demos/{demo_name}/narration.txt")
+        else:
+            with open(f"{demo_dir}/narration.txt", "w") as f:
+                f.write(narration_text)
+            
+            pace_header = """#!/bin/bash
 source "${PACE_LIB:-/dev/null}" 2>/dev/null || true
 type pace >/dev/null 2>&1 || pace() { :; }
 
 """
-        with open(f"{demo_dir}/demo.sh", "w") as f:
-            f.write(pace_header + demo_script)
+            with open(f"{demo_dir}/demo.sh", "w") as f:
+                f.write(pace_header + demo_script)
 
-    current_step = 2
-    progress_percent = 0
-    yield None, log_accumulator + "🚀 Starting render engine...\n", get_status_html(current_step, progress_percent)
+        current_step = 2
+        progress_percent = 0
+        yield None, log_accumulator + "🚀 Starting render engine...\n", get_status_html(current_step, progress_percent)
 
-    # --- Robust Popen Implementation with Explicit Shell Wrapper ---
-    try:
-        process = subprocess.Popen(
-            ["bash", "./render.sh", demo_name],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1
-        )
-    except Exception as e:
-        error_msg = f"❌ Failed to launch render engine process: {str(e)}\nEnsure render.sh exists in this directory."
-        yield None, log_accumulator + error_msg, get_status_html(current_step, 0)
-        return
+        try:
+            process = subprocess.Popen(
+                ["bash", "./render.sh", demo_name],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1
+            )
+        except Exception as e:
+            error_msg = f"❌ Failed to launch render engine process: {str(e)}\nEnsure render.sh exists in this directory."
+            yield None, log_accumulator + error_msg, get_status_html(current_step, 0)
+            return
 
-    for line in iter(process.stdout.readline, ""):
-        log_accumulator += line
-        
-        if "recording terminal" in line.lower():
-            current_step = 3
-            progress_percent = 0
-        elif "muxing" in line.lower() or "ffmpeg" in line.lower() or "joining" in line.lower():
-            current_step = 4
-            progress_percent = 50 
+        for line in iter(process.stdout.readline, ""):
+            log_accumulator += line
             
-        sampling_match = re.search(r"Sampling:\s+(\d+)%", line)
-        if sampling_match and current_step == 2:
-            progress_percent = int(sampling_match.group(1))
-            
-        vhs_match = re.search(r"Rendered\s+(\d+)%", line)
-        if vhs_match and current_step == 3:
-            progress_percent = int(vhs_match.group(1))
+            if "recording terminal" in line.lower():
+                current_step = 3
+                progress_percent = 0
+            elif "muxing" in line.lower() or "ffmpeg" in line.lower() or "joining" in line.lower():
+                current_step = 4
+                progress_percent = 50 
+                
+            sampling_match = re.search(r"Sampling:\s+(\d+)%", line)
+            if sampling_match and current_step == 2:
+                progress_percent = int(sampling_match.group(1))
+                
+            vhs_match = re.search(r"Rendered\s+(\d+)%", line)
+            if vhs_match and current_step == 3:
+                progress_percent = int(vhs_match.group(1))
 
-        if current_step == 4 and "saved" in line.lower():
-            progress_percent = 100
+            if current_step == 4 and "saved" in line.lower():
+                progress_percent = 100
 
-        yield None, log_accumulator, get_status_html(current_step, progress_percent)
+            yield None, log_accumulator, get_status_html(current_step, progress_percent)
 
-    process.stdout.close()
-    return_code = process.wait()
+        process.stdout.close()
+        return_code = process.wait()
 
-    video_path = f"build/video/{demo_name}.mp4"
-    if return_code == 0 and os.path.exists(video_path):
-        log_accumulator += "\n🎉 Video rendering complete!"
-        yield video_path, log_accumulator, get_status_html(5, 100)
-    else:
-        log_accumulator += f"\n❌ Rendering failed with exit code {return_code}."
-        yield None, log_accumulator, get_status_html(current_step, progress_percent)
+        video_path = f"build/video/{demo_name}.mp4"
+        if return_code == 0 and os.path.exists(video_path):
+            log_accumulator += "\n🎉 Video rendering complete!"
+            yield video_path, log_accumulator, get_status_html(4, 100)
+        else:
+            log_accumulator += f"\n❌ Rendering failed with exit code {return_code}."
+            yield None, log_accumulator, get_status_html(current_step, progress_percent)
+
+    except Exception as fatal_e:
+        # Catches any unexpected Python error so the UI display never breaks
+        error_log = f"❌ Fatal Exception: {str(fatal_e)}"
+        yield None, error_log, get_status_html(1, 0)
 
 # EDB Color Styled Panel Theme
 edb_theme = gr.themes.Default(
@@ -191,7 +194,7 @@ edb_theme = gr.themes.Default(
     block_border_color="#d5d8da"
 )
 
-# Custom HTML for Prominent Contact Info Banner
+# Custom HTML Banner
 contact_banner_html = """
 <div style="background-color: #28495A; border-left: 6px solid #3E7CC2; padding: 12px 20px; border-radius: 4px; margin-bottom: 20px; font-family: sans-serif; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
     <div>
@@ -278,7 +281,5 @@ with gr.Blocks(title="Demo Video Maker Studio", theme=edb_theme) as demo:
     )
 
 if __name__ == "__main__":
-    # Automate browser launch using standard python hooks right before starting server
     webbrowser.open_new_tab("http://127.0.0.1:7860")
     demo.launch(server_name="127.0.0.1", server_port=7860)
-    

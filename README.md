@@ -52,6 +52,9 @@ For each demo, one command produces an MP4 that:
 - **[VHS](https://github.com/charmbracelet/vhs)** — records the terminal
 - **ffmpeg** — muxes voice + badge
 - **Python 3.12+** — runs the local voice model (tested up to Python 3.14 on Apple Silicon)
+- **[Ollama](https://ollama.com)** *(optional)* — enables automatic narration↔visual
+  sync via a small local model (`qwen2.5:3b`). Without it, pacing falls back to the
+  proportional `pace`-weight method. Runs locally; nothing is uploaded.
 
 > **Note for modern environments:** If you are running Python 3.12 to 3.14+ on Apple Silicon, your environment dependencies are fully managed and automatically patched out-of-the-box by our `requirements.txt`.
 
@@ -184,6 +187,15 @@ and render.sh plays your voice over the live action instead.
 **Slow setup?** If your demo needs minutes of setup that shouldn't be on camera
 (building containers, seeding data), put it in `prep.sh`. render.sh runs it
 off-camera before recording, so only the payoff is captured.
+
+**Automatic sync (optional).** If [Ollama](https://ollama.com) is installed with
+`qwen2.5:3b` pulled, render.sh measures each narration sentence's spoken length and
+uses the model to map sentences to demo steps, holding each step exactly as long as
+its narration — so rewording `narration.txt` re-syncs on the next render without
+touching your `pace` numbers. The `pace` calls still mark where the steps are; only
+the hold lengths become automatic. If Ollama is absent, unreachable, or unsure, it
+silently falls back to the proportional method above (never worse than before). The
+mapping call is local-only (`127.0.0.1`).
 
 ---
 

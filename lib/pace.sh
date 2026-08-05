@@ -12,6 +12,16 @@
 # When your demo runs on its own (REC_PACE unset), pace does nothing and the demo
 # runs at full speed — so your normal workflow is unaffected.
 pace() {
+  # Recording-only. Priority: explicit per-call list (REC_PACE_LIST), else the
+  # weighted single rate (REC_PACE * weight). No-op when neither is set.
+  if [ -n "${REC_PACE_LIST:-}" ]; then
+    : "${PACE_IDX:=0}"
+    PACE_IDX=$((PACE_IDX + 1))
+    local secs
+    secs=$(printf '%s\n' $REC_PACE_LIST | sed -n "${PACE_IDX}p")
+    [ -n "$secs" ] && { sleep "$secs" 2>/dev/null || true; }
+    return 0
+  fi
   [ -z "${REC_PACE:-}" ] && return 0
   local secs
   secs=$(awk -v p="$REC_PACE" -v w="${1:-1}" 'BEGIN{printf "%.2f", p*w}')

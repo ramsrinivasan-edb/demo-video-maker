@@ -80,7 +80,9 @@ overlay_expr() {  # $1 = corner  (margin 28px)
 # OUTRO_URL defaults to this repo's own GitHub remote, so the QR "just works".
 # Set OUTRO_URL="" to disable the end card, or to any URL to override.
 if [[ -z "${OUTRO_URL+x}" ]]; then
-  OUTRO_URL="$(git remote get-url origin 2>/dev/null | sed -E 's#git@github.com:#https://github.com/#; s#\.git$##')"
+  # Tolerate git missing / not-a-repo / dubious-ownership: a failure here must
+  # not abort the render (git exits 128), so `|| true` neutralizes set -e + pipefail.
+  OUTRO_URL="$(git remote get-url origin 2>/dev/null | sed -E 's#git@github.com:#https://github.com/#; s#\.git$##' || true)"
 fi
 ENDCARD="$OUT/endcard.png"
 if [[ -n "${OUTRO_URL:-}" && ! -f "$ENDCARD" ]]; then

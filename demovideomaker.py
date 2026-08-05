@@ -58,6 +58,11 @@ def render_video_stream(
     voice_input,
     image_input
 ):
+    demo_name = (demo_name or "").strip()
+    if not demo_name:
+        yield None, "❌ Please enter a project name for your demo before generating.", get_status_html(0)
+        return
+
     demo_dir = f"demos/{demo_name}"
     os.makedirs(demo_dir, exist_ok=True)
     
@@ -180,11 +185,6 @@ type pace >/dev/null 2>&1 || pace() { :; }
         log_accumulator += f"\n❌ Rendering failed with exit code {return_code}."
         yield None, log_accumulator, get_status_html(current_step, progress_percent)
 
-# Dynamic path resolution based on demovideomaker.py directory location
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_SCRIPT_PATH = os.path.join(BASE_DIR, "demos", "make-a-demo", "demo.sh")
-DEFAULT_NARRATION_PATH = os.path.join(BASE_DIR, "demos", "make-a-demo", "narration.txt")
-
 # EDB Color Styled Panel Theme
 edb_theme = gr.themes.Default(
     primary_hue="blue",
@@ -220,7 +220,7 @@ with gr.Blocks(title="Demo Video Maker Studio", theme=edb_theme) as demo:
     
     with gr.Row():
         with gr.Column(scale=1):
-            demo_name = gr.Textbox(label="📁 Project Name", value="semanticiq-demo")
+            demo_name = gr.Textbox(label="📁 Project Name", placeholder="Give a name for your demo (e.g. my-demo)")
             
             with gr.Row():
                 voice_source = gr.Audio(
@@ -240,11 +240,11 @@ with gr.Blocks(title="Demo Video Maker Studio", theme=edb_theme) as demo:
                 gr.Markdown("### Local Workspace Paths")
                 script_path = gr.Textbox(
                     label="Absolute Path to your demo.sh",
-                    value=DEFAULT_SCRIPT_PATH
+                    placeholder="Full path to your demo.sh (e.g. /Users/you/demos/my-demo/demo.sh)"
                 )
                 narration_path = gr.Textbox(
                     label="Absolute Path to your narration.txt",
-                    value=DEFAULT_NARRATION_PATH
+                    placeholder="Full path to your narration.txt (e.g. /Users/you/demos/my-demo/narration.txt)"
                 )
             
             with gr.Group(visible=False) as text_inputs:

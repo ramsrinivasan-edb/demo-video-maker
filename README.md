@@ -93,6 +93,19 @@ This checks your tools, creates an isolated virtual environment (`.venv`), and i
 python3 demovideomaker.py
 ```
 
+This opens **Demo Video Maker Studio** — a local web UI — in your browser at
+`http://127.0.0.1:7860`. From there you can:
+
+- **Record or upload your voice** and **capture a headshot from your webcam** (or
+  upload one) — no need to place files by hand.
+- Either **point at an existing** `demo.sh` / `narration.txt` on disk, or type the
+  narration and bash commands into the built-in scratchpad editors.
+- Watch a **live 4-stage progress tracker** (Staging → Voice → VHS → Compositing)
+  and streaming logs, then preview the finished MP4 inline.
+
+Under the hood it just drives `render.sh`, so the output is identical to the CLI.
+Everything still runs locally.
+
 ### Running via Terminal Script:
 The repo ships with a small, dependency-free example:
 
@@ -216,7 +229,7 @@ re-recording anything.
 ```
 Install.command      one-click installer shortcut for macOS
 Start VideoMaker.command double-click app launcher shortcut
-demovideomaker.py    desktop UI application
+demovideomaker.py    local web UI (Gradio "Studio"; drives render.sh)
 render.sh            orchestrator: synth voice -> record -> mux
 tts_clone.py         local voice cloning (Chatterbox)
 setup.sh             one-time environment setup

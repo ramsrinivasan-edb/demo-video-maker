@@ -4,7 +4,7 @@ Turn a terminal demo into a **narrated video — in your own voice, with your fa
 badged in a corner**, paced so the on-screen action tracks what you're saying.
 
 Everything runs **locally**. Your voice sample, your photo, and the finished
-videos never leave your machine - nothing is uploaded to any service.
+videos never leave your machine. Nothing is uploaded to any service.
 
 > New here and want the "why"? Read [`docs/why-this-exists.md`](docs/why-this-exists.md).
 

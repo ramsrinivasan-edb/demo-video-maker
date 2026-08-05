@@ -122,8 +122,10 @@ if [[ "$DO_TTS" -eq 1 ]]; then
 fi
 
 # --- 2. build a VHS tape paced to the narration -----------------------------
-build_tape() {  # $1 demo  $2 REC_PACE  $3 sleep-seconds
-  local d="$1" rp="$2" slp="$3"
+build_tape() {  # $1 demo  $2 REC_PACE  $3 sleep-seconds  $4 holds (optional)
+  local d="$1" rp="$2" slp="$3" holds="${4:-}"
+  local pace_env="REC_PACE=$rp"
+  [[ -n "$holds" ]] && pace_env="REC_PACE_LIST='$holds'"
   cat > "$OUT/tapes/$d.tape" <<EOF
 Output "$OUT/silent/$d.mp4"
 Set Shell bash
@@ -138,7 +140,7 @@ Type "cd '$DEMOS_DIR/$d'" Enter
 Type "clear" Enter
 Show
 Sleep 1s
-Type "PACE_LIB='$ROOT/lib/pace.sh' REC_PACE=$rp bash demo.sh" Enter
+Type "PACE_LIB='$ROOT/lib/pace.sh' $pace_env bash demo.sh" Enter
 Sleep ${slp}s
 Sleep 2s
 EOF
@@ -197,7 +199,25 @@ for d in "${DEMOS[@]}"; do
   SLEEP=$(awk -v D="$D" -v P="$PACED" 'BEGIN{m=(D>P)?D:P; printf "%d", m+6}')
   echo "    narration=${D}s base=${B}s weight=${W} corner=${BADGE_CORNER} -> REC_PACE=${RP} paced=${PACED}s"
 
-  build_tape "$d" "$RP" "$SLEEP"
+  # Warn if the demo has no pace points — sync is impossible, video may freeze.
+  NPACE=$(grep -cE '^[[:space:]]*pace\b' "$demo_sh" 2>/dev/null || echo 0)
+  [[ "$NPACE" -eq 0 ]] && echo "!! $d: no 'pace' calls in demo.sh — narration/visual sync disabled (video may freeze). See README."
+
+  # Try LLM alignment (stretched demos only). Empty HOLDS => fall back to REC_PACE.
+  HOLDS=""
+  if [[ "${W%.*}" -gt 0 ]] 2>/dev/null && [[ -f "$OUT/audio/$d.timing.json" ]]; then
+    PYA="$( [ -x .venv/bin/python ] && echo .venv/bin/python || echo "${PYTHON:-python3}" )"
+    if HOLDS=$("$PYA" align.py --timing "$OUT/audio/$d.timing.json" --demo "$demo_sh" \
+                --model "${ALIGN_MODEL:-qwen2.5:3b}" 2>>"$OUT/align.log"); then
+      echo "    aligned holds: $HOLDS"
+      SLEEP=$(awk -v D="$D" 'BEGIN{printf "%d", D+6}')
+    else
+      HOLDS=""
+      echo "    (alignment unavailable — using proportional pacing; see $OUT/align.log)"
+    fi
+  fi
+
+  build_tape "$d" "$RP" "$SLEEP" "$HOLDS"
   echo "=== $d: recording terminal (vhs) ==="
   vhs "$OUT/tapes/$d.tape"
 

@@ -28,6 +28,13 @@ python3 -m venv .venv
 echo "--> Installing AI voice model dependencies (this may take a few minutes)..."
 .venv/bin/pip install --upgrade pip
 if .venv/bin/pip install -r requirements.txt; then
+    echo "--> Checking optional alignment model (Ollama)..."
+    if command -v ollama >/dev/null; then
+        ollama pull qwen2.5:3b || echo "    (couldn't pull qwen2.5:3b now — auto-sync falls back until available)"
+    else
+        echo "    (Ollama not found — auto-sync will fall back to proportional pacing."
+        echo "     Optional: install from https://ollama.com, then run: ollama pull qwen2.5:3b)"
+    fi
     echo ""
     echo "=================================================="
     echo " SUCCESS! Everything is installed and ready."

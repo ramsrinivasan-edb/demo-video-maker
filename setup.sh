@@ -28,6 +28,14 @@ echo "== installing the local voice model (can take a few minutes) =="
 pip install -r requirements.txt
 deactivate
 
+echo "== checking optional alignment model (Ollama) =="
+if command -v ollama >/dev/null; then
+  ollama pull qwen2.5:3b || echo "  (couldn't pull qwen2.5:3b now — auto-sync falls back until it's available)"
+else
+  echo "  (ollama not found — narration/visual auto-sync will fall back to proportional pacing."
+  echo "   Optional: install Ollama from https://ollama.com, then: ollama pull qwen2.5:3b)"
+fi
+
 cat <<'EOT'
 
 Setup complete.

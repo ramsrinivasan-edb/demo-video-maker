@@ -13,7 +13,11 @@ ECHO_RE = re.compile(r"^\s*echo\s+(.*)$")
 
 
 def extract_sections(demo_text):
-    """One label per `pace` call: the echo text printed since the previous pace."""
+    """One label per `pace` call: the echo text printed since the previous pace.
+
+    Assumes a linear demo: one runtime `pace` execution per textual `pace` line.
+    `pace` inside loops or conditionals will desync the returned sections from
+    the runtime REC_PACE_LIST — use a flat script to guarantee alignment."""
     sections, buf = [], []
     for line in demo_text.splitlines():
         if PACE_RE.match(line):

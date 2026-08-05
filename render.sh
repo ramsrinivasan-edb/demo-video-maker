@@ -200,8 +200,8 @@ for d in "${DEMOS[@]}"; do
   echo "    narration=${D}s base=${B}s weight=${W} corner=${BADGE_CORNER} -> REC_PACE=${RP} paced=${PACED}s"
 
   # Warn if the demo has no pace points — sync is impossible, video may freeze.
-  NPACE=$(grep -cE '^[[:space:]]*pace\b' "$demo_sh" 2>/dev/null || echo 0)
-  [[ "$NPACE" -eq 0 ]] && echo "!! $d: no 'pace' calls in demo.sh — narration/visual sync disabled (video may freeze). See README."
+  NPACE=$(grep -cE '^[[:space:]]*pace\b' "$demo_sh" || true)
+  [[ "${NPACE:-0}" -eq 0 ]] && echo "!! $d: no 'pace' calls in demo.sh — narration/visual sync disabled (video may freeze). See README."
 
   # Try LLM alignment (stretched demos only). Empty HOLDS => fall back to REC_PACE.
   HOLDS=""

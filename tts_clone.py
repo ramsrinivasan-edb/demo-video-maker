@@ -15,6 +15,7 @@ import os
 import re
 import subprocess
 import soundfile as sf
+from timing_util import chunk_durations, write_timing
 
 # Let unsupported Apple-Silicon (MPS) ops fall back to CPU instead of crashing.
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
@@ -81,6 +82,7 @@ def main():
         chunks = split_sentences(text)
         print(f">> [{name}] {len(chunks)} chunks -> {out}")
         pieces = []
+        sample_counts = []
         for i, c in enumerate(chunks, 1):
             print(f"     chunk {i}/{len(chunks)}: {c[:60]}...")
             wav = model.generate(c, audio_prompt_path=args.reference,
@@ -88,6 +90,7 @@ def main():
             wav = wav.detach().cpu()
             if wav.dim() == 1:
                 wav = wav.unsqueeze(0)
+            sample_counts.append(wav.shape[-1])
             pieces.append(wav)
             pieces.append(gap)
         full = torch.cat(pieces, dim=1)
@@ -101,6 +104,9 @@ def main():
             os.remove(tmp)
         else:
             torchaudio.save(out, full, sr)
+        gap_samples = int(sr * args.gap_ms / 1000)
+        durations = chunk_durations(sample_counts, gap_samples, sr, args.speed)
+        write_timing(os.path.splitext(out)[0] + ".timing.json", chunks, durations)
         print(f"     saved {out}")
     print(">> done. wavs in", args.out_dir)
 
